@@ -1,2 +1,147 @@
-# ToxCML-Hybrid-qRASAR
-This study presents ToxCML, a large-scale hybrid q-RASAR platform that integrates consensus QSAR and consensus read-across to predict 18 toxicity endpoints for 53,378 chemicals with high accuracy and transparent applicability-domain analysis, supporting broad toxicity screening and hazard prioritization.
+# ToxCML: A Hybrid q‑RASAR Framework-Based Platform Integrating Consensus QSAR and Read-Across for Enhanced Comprehensive Multi-Endpoint Toxicity Assessment
+
+ToxCML is a large-scale hybrid **q‑RASAR** framework-based platform that integrates consensus QSAR and consensus read-across into a weight-optimized workflow for multi-endpoint toxicity prediction. It is designed to provide chemically contextualized, applicability-domain–aware predictions that can support large-scale toxicity screening, hazard prioritization, and reduction of animal testing. 
+
+## Study overview
+
+Conventional animal-based toxicity testing is time-consuming, expensive, and ethically challenging, motivating the development of computational in silico methods. In this project, ToxCML combines:
+- Machine-learning–based consensus QSAR models built on multiple molecular representations (MACCS, Morgan, APF, RDKit fingerprints, and physicochemical descriptors) using Random Forest, XGBoost, and Support Vector Machines (SVM).
+- Similarity-based consensus read-across models.
+- Tiered applicability-domain (AD) analysis and chemical-space mapping
+- Integration of Consensus QSAR and Consensus Read Across into a unified hybrid q‑RASAR framework.
+
+The hybrid q‑RASAR framework predicts **18 toxicity endpoints** for **53,378 unique chemicals**, achieving strong performance on unseen test sets and external validation sets (AUC ≈ 0.86–0.99; ACC ≈ 0.75–0.98). Across endpoints, hybrid q‑RASAR consistently outperforms its individual components, with consensus QSAR remaining highly competitive and consensus read-across providing complementary discriminatory information. 
+
+## Repository structure
+
+- `Dataset/`  
+  Curated datasets (SMILES and binary toxicity labels) for the 18 toxicity endpoints used to develop and validate the models. 
+
+- `AD Analysis/`  
+  Scripts/notebooks for applicability-domain analysis, including similarity- and leverage-based AD definitions and combined q‑RASAR AD. 
+
+- `Molecular Descriptor Computation_Preprosesing data.ipynb`  
+  Notebook for data preprocessing and molecular feature computation:
+  - Input: SMILES-based datasets from `Dataset/`.  
+  - Output: MACCS, Morgan, APF, RDKit fingerprints and physicochemical descriptors for each compound. 
+
+- `Training_Consensus QSAR_Fingerprint_10foldCrossvalidation.ipynb`  
+  Notebook for training fingerprint-based QSAR models (e.g., RF, XGBoost, SVM using MACCS, Morgan, APF, andh physicochemical properties):  
+  - Performs 10‑fold cross-validation per fingerprint–algorithm combination.  
+  - Produces prediction probabilities that will be integrated into consensus QSAR. 
+
+- `Training_Consensus QSAR_PhysicochemicalProperties_10foldCrossvalidation.ipynb`  
+  Notebook for training descriptor-based QSAR models using physicochemical properties:  
+  - Trains multiple algorithms with 10‑fold cross-validation.  
+  - Generates consensus QSAR probabilities from descriptor-based models. 
+
+- `Model Performance Evaluation 1_Consensus QSAR.ipynb`  
+  Notebook for evaluating consensus QSAR on unseen test or external validation sets:  
+  - Computes ACC, AUC, sensitivity, specificity, and confidence intervals. 
+- `Model Performance Evaluation 2_Consensus Read-Across Evaluation.ipynb`  
+  Notebook for building and evaluating consensus read-across models:  
+  - Uses k‑nearest neighbor–type similarity (e.g., Tanimoto on MACCS, Morgan, APF, RDKit fingerprints).  
+  - Aggregates fingerprint-specific read-across probabilities into a consensus read-across score. 
+
+- `q-RASAR_Evaluation_Framework.ipynb`  
+  Notebook for constructing and evaluating the **hybrid q‑RASAR** framework:  
+  - Integrates consensus QSAR and consensus read-across probabilities via a linear weighting scheme.  
+  - Optimizes the weight to jointly maximize predictive power. 
+
+- `.gitattributes`  
+  Git configuration for handling specific file types and line endings. [web:40]
+
+## Workflow: step-by-step
+
+The typical workflow for reproducing the ToxCML hybrid q‑RASAR framework is:
+
+### 1. Molecular descriptor and fingerprint computation
+
+**Notebook:**  
+`Molecular Descriptor Computation_Preprosesing data.ipynb`  
+
+**Input:**  
+- SMILES-based datasets from `Dataset/` (18 endpoints, 53,378 unique compounds). [web:39]
+
+**What this step does:**  
+- Performs structure and label preprocessing (e.g., SMILES validation, duplicate removal, label harmonization).  
+- Computes multiple molecular representations for each compound:
+  - MACCS keys.  
+  - Morgan circular fingerprints.  
+  - Atom Pair (APF) fingerprints.  
+  - RDKit fingerprints.  
+  - Physicochemical descriptors.
+
+**Output:**  
+- Feature matrices (fingerprints + physicochemical descriptors) ready for model development.
+
+### 2. Development of the consensus QSAR framework
+
+This stage trains QSAR models separately on fingerprint-based features and physicochemical descriptors, then aggregates them into a consensus QSAR scheme.
+
+#### 2.1 Training fingerprint-based QSAR models
+
+**Notebook:**  
+`Training_Consensus QSAR_Fingerprint_10foldCrossvalidation.ipynb`  
+
+**What this step does:**  
+- Trains QSAR models using MACCS, Morgan, and APF fingerprints with machine-learning algorithms (e.g., Random Forest, XGBoost, SVM).  
+- Applies 10‑fold cross-validation to optimize and assess each fingerprint–algorithm combination.  
+- Produces predicted probabilities for each endpoint and configuration. 
+
+#### 2.2 Training physicochemical descriptor–based QSAR models
+
+**Notebook:**  
+`Training_Consensus QSAR_PhysicochemicalProperties_10foldCrossvalidation.ipynb`  
+
+**What this step does:**  
+- Trains QSAR models using physicochemical descriptors as input features.  
+- Performs 10‑fold cross-validation to evaluate predictive stability and select high-performing models.  
+- Outputs predicted probabilities for the descriptor-based QSAR models.
+  
+#### 2.3 Consensus QSAR model evaluation
+
+**Notebook:**  
+`Model Performance Evaluation 1_Consensus QSAR.ipynb`  
+
+**What this step does:**  
+- Integrates predicted probabilities from selected fingerprint- and descriptor-based models into a **consensus QSAR** probability (e.g., arithmetic mean across models/representations).  
+- Evaluates consensus QSAR performance on unseen test sets or external validation sets.  
+- Reports ACC, AUC, sensitivity, specificity, and 95% confidence intervals, showing that consensus QSAR is competitive across endpoints. [web:26][web:39]
+
+### 3. Development of the consensus read-across framework
+
+**Notebook:**  
+`Model Performance Evaluation 2_Consensus Read-Across Evaluation.ipynb`  
+
+**What this step does:**  
+- Implements read-across predictions using similarity between query and training compounds:
+  - Computes similarity metrics (e.g., Tanimoto) on MACCS, Morgan, APF, and RDKit fingerprints.  
+  - Selects k nearest neighbors and estimates read-across probabilities from their toxicity labels. [web:29][web:30]  
+- Aggregates fingerprint-specific read-across probabilities into a **consensus read-across** score.  
+- Evaluates consensus read-across using ACC, AUC, and other metrics on unseen data, demonstrating its complementary predictive and discriminatory contribution relative to QSAR. [web:29][web:39]
+
+### 4. Hybrid q‑RASAR integration of consensus QSAR and read-across
+
+**Notebook:**  
+`q-RASAR_Evaluation_Framework.ipynb`  
+
+**What this step does:**  
+- Integrates the **consensus QSAR** probability and **consensus read-across** probability into a single hybrid **q‑RASAR** probability using a linear weighting scheme:
+  - \( P_{\text{q‑RASAR}} = w \cdot P_{\text{QSAR,consensus}} + (1 - w) \cdot P_{\text{RA,consensus}} \).  
+- Performs grid search over the weight \( w \) to maximize a joint performance score combining AUC and ACC.  
+- Evaluates hybrid q‑RASAR on unseen test and external validation sets, showing that the hybrid model consistently outperforms individual consensus QSAR and consensus read-across across the 18 endpoints. 
+
+## Applicability domain and chemical space analysis
+
+**Folder:**  
+`AD Analysis/`  
+
+**What this step does:**  
+- Quantifies global QSAR-domain coverage using similarity-based and leverage-based AD definitions.  
+- Assesses local read-across AD based on similarity to nearest neighbors.  
+- Defines a final q‑RASAR AD as the intersection of QSAR and read-across domains, ensuring that reported predictions are restricted to well-supported chemical space regions.
+
+## How to cite
+
+If you use this repository, the code, or any derived models in your work, please cite: (on-going publication)
