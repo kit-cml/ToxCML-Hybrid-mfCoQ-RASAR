@@ -166,7 +166,7 @@ This stage trains QSAR models separately on fingerprint-based features and physi
 **What this step does:**  
 - Integrates the **consensus QSAR** probability and **consensus read-across** probability into a single hybrid **q‑RASAR** probability using a linear weighting scheme:
 
-\( P_{\text{q‑RASAR}} = w \cdot P_{\text{QSAR,consensus}} + (1 - w) \cdot P_{\text{RA,consensus}} \).  
+\( P_{\text{q-RASAR}} = w \cdot P_{\text{QSAR, consensus}} + (1 - w) \cdot P_{\text{RA, consensus}} \)
 
 - Performs grid search over the weight \( w \) to maximize a joint performance score (e.g., combining AUC and ACC).  
 - Evaluates hybrid q‑RASAR on unseen test and external validation sets, showing that the hybrid model consistently outperforms individual consensus QSAR and consensus read-across across the 18 endpoints.
