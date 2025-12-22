@@ -9,7 +9,7 @@ Fauzan Syarif Nursyafi¹, Muhammad Adnan Pramudito², Yunendah Nur Fuadah³, Rah
 ⁴ Computational Medicine Lab, Department of Biomedical Engineering, Kumoh National Institute of Technology, Gumi, 39177, Republic of Korea.  
 ⁵ Meta Heart Co., Ltd, Gumi, 39253, Republic of Korea.  
 
-\*Corresponding author: [kmlim@kumoh.ac.kr](mailto:kmlim@kumoh.ac.kr)
+*Corresponding author: [kmlim@kumoh.ac.kr](mailto:kmlim@kumoh.ac.kr)
 
 ToxCML is a large-scale hybrid **q‑RASAR** framework-based platform that integrates consensus QSAR and consensus read-across into a weight-optimized workflow for multi-endpoint toxicity prediction. It is designed to provide chemically contextualized, applicability-domain–aware predictions that can support large-scale toxicity screening, hazard prioritization, and reduction of animal testing.
 
@@ -22,6 +22,31 @@ Conventional animal-based toxicity testing is time-consuming, expensive, and eth
 - Integration of consensus QSAR and consensus read-across into a unified hybrid q‑RASAR framework.
 
 The hybrid q‑RASAR framework predicts **18 toxicity endpoints** for **53,378 unique chemicals**, achieving strong performance on unseen test sets and external validation sets (AUC ≈ 0.86–0.99; ACC ≈ 0.75–0.98). Across endpoints, hybrid q‑RASAR consistently outperforms its individual components, with consensus QSAR remaining highly competitive and consensus read-across providing complementary discriminatory information.
+
+## Toxicity endpoints
+
+ToxCML covers 18 curated toxicity endpoints spanning acute systemic toxicity, organ-specific toxicity, and drug-induced safety liabilities relevant to regulatory and drug discovery contexts.
+
+| No. | Endpoint | Brief definition |
+|----:|----------|------------------|
+| 1 | **AMES Mutagenicity** | Potential of a compound to induce gene mutations in bacterial test systems (e.g., *Salmonella typhimurium*), serving as an initial indicator of genotoxicity. |
+| 2 | **Acute Dermal Toxicity** | Adverse systemic effects or mortality following single or short-term exposure via the skin, typically categorized using dermal LD₅₀ data. |
+| 3 | **Acute Inhalation Toxicity** | Toxic responses after brief inhalation exposure to gases, vapors, or aerosols, reflecting systemic hazard via the respiratory route. |
+| 4 | **Acute Oral Toxicity** | Systemic adverse effects or death after a single oral dose, usually classified according to LD₅₀-based regulatory categories. |
+| 5 | **Carcinogenicity** | Ability of a compound to induce or promote tumor formation following repeated or long-term exposure. |
+| 6 | **Cardiotoxicity** | Structural or functional damage to the heart, including effects on contractility, conduction, or rhythm. |
+| 7 | **DILI (Drug-Induced Liver Injury)** | Liver damage caused by drugs, ranging from mild enzyme elevations to severe hepatic failure. |
+| 8 | **Developmental Toxicity** | Adverse effects on embryo–fetal development, such as malformations, growth retardation, or prenatal death. |
+| 9 | **Drug Induced Nephrotoxicity (DIN)** | Kidney injury caused by drugs, affecting glomerular or tubular function and renal clearance. |
+| 10 | **Eye Irritation** | Reversible or irreversible ocular damage following direct contact with a test substance. |
+| 11 | **FDA MDD** | Systemic toxicity information associated with drugs developed or evaluated for Major Depressive Disorder (MDD), derived from nonclinical and clinical safety data. |
+| 12 | **Hematotoxicity** | Toxic effects on the blood and hematopoietic system, including changes in blood cell counts or bone marrow function. |
+| 13 | **Hepatotoxicity** | Structural or functional liver injury (e.g., enzyme elevations, cholestasis, or hepatocellular damage) caused by chemicals or drugs. |
+| 14 | **Mitochondrial Toxicity** | Impairment of mitochondrial function, such as disrupted oxidative phosphorylation or increased oxidative stress, leading to cellular dysfunction. |
+| 15 | **Neurotoxicity** | Adverse effects on the central or peripheral nervous system, impacting neuronal structure or function. |
+| 16 | **Respiratory Toxicity** | Toxic effects on the respiratory system, including airway inflammation, bronchoconstriction, or parenchymal lung damage. |
+| 17 | **Skin Irritation** | Non-immunologic inflammatory response of the skin (e.g., erythema, edema) after short-term topical exposure. |
+| 18 | **Skin Sensitization** | Immune-mediated allergic skin response (allergic contact dermatitis) following repeated exposure to a sensitizing chemical. |
 
 ## Repository structure
 
