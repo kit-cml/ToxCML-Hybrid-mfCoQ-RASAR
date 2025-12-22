@@ -32,14 +32,14 @@ ToxCML covers 18 curated toxicity endpoints spanning acute systemic toxicity, or
 | 1 | **AMES Mutagenicity** | Potential of a compound to induce gene mutations in bacterial test systems (e.g., *Salmonella typhimurium*), serving as an initial indicator of genotoxicity. |
 | 2 | **Acute Dermal Toxicity** | Adverse systemic effects or mortality following single or short-term exposure via the skin, typically categorized using dermal LD₅₀ data. |
 | 3 | **Acute Inhalation Toxicity** | Toxic responses after brief inhalation exposure to gases, vapors, or aerosols, reflecting systemic hazard via the respiratory route. |
-| 4 | **Acute Oral Toxicity** | Systemic adverse effects or death after a single oral dose, usually classified according to LD₅₀-based regulatory categories. |
+| 4 | **Acute Oral Toxicity** | Systemic adverse effects or death after a single oral dose, classified according to LD₅₀-based regulatory categories. |
 | 5 | **Carcinogenicity** | Ability of a compound to induce or promote tumor formation following repeated or long-term exposure. |
 | 6 | **Cardiotoxicity** | Structural or functional damage to the heart, including effects on contractility, conduction, or rhythm. |
 | 7 | **DILI (Drug-Induced Liver Injury)** | Liver damage caused by drugs, ranging from mild enzyme elevations to severe hepatic failure. |
 | 8 | **Developmental Toxicity** | Adverse effects on embryo–fetal development, such as malformations, growth retardation, or prenatal death. |
 | 9 | **Drug Induced Nephrotoxicity (DIN)** | Kidney injury caused by drugs, affecting glomerular or tubular function and renal clearance. |
 | 10 | **Eye Irritation** | Reversible or irreversible ocular damage following direct contact with a test substance. |
-| 11 | **FDA MDD** | Systemic toxicity information associated with drugs developed or evaluated for Major Depressive Disorder (MDD), derived from nonclinical and clinical safety data. |
+| 11 | **FDA MDD** | Maximum Daily Dose–oriented systemic toxicity endpoint, where compounds are labeled according to toxicity status at FDA-relevant maximum daily dose (MDD) levels. |
 | 12 | **Hematotoxicity** | Toxic effects on the blood and hematopoietic system, including changes in blood cell counts or bone marrow function. |
 | 13 | **Hepatotoxicity** | Structural or functional liver injury (e.g., enzyme elevations, cholestasis, or hepatocellular damage) caused by chemicals or drugs. |
 | 14 | **Mitochondrial Toxicity** | Impairment of mitochondrial function, such as disrupted oxidative phosphorylation or increased oxidative stress, leading to cellular dysfunction. |
