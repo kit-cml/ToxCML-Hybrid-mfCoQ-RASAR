@@ -14,6 +14,14 @@ Fauzan Syarif Nursyafi¹, Muhammad Adnan Pramudito², Yunendah Nur Fuadah³, Rah
 ToxCML is a large-scale hybrid **mfCoQ‑RASAR** (multi-feature Consensus quantitative Read-Across Structure–Activity Relationship) platform that explicitly integrates consensus QSAR and consensus read-across into a **weight-optimized hybrid predictor** for multi-endpoint toxicity assessment. The framework is designed to provide chemically contextualized, applicability-domain–aware predictions to support large-scale toxicity screening, hazard prioritization, and reduction of animal testing.
 
 ---
+## Framework overview
+
+![mfCoQ‑RASAR framework](Figure1_mfCoQ-RASAR%20Framework.png)
+
+## ToxCML web platform
+
+![ToxCML web design](Web_ToxCML%20Design.png)
+
 
 ## Study overview
 
