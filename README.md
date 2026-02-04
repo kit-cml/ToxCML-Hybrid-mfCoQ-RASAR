@@ -1,183 +1,109 @@
-# ToxCML: A Hybrid q‑RASAR Framework-Based Platform Integrating Consensus QSAR and Read-Across for Enhanced Comprehensive Multi-Endpoint Toxicity Assessment
+# ToxCML: A Hybrid mfCoQ-RASAR Platform for Multi-Endpoint Toxicity Prediction
 
-**Authors**  
-Fauzan Syarif Nursyafi¹, Muhammad Adnan Pramudito², Yunendah Nur Fuadah³, Rahmafatin Nurul Izza², Abdul Latif Fauzan⁵, and Ki Moo Lim¹˒⁴˒⁵*  
+## Authors
+Fauzan Syarif Nursyafi¹, Muhammad Adnan Pramudito², Yunendah Nur Fuadah³, Rahmafatin Nurul Izza², Abdul Latif Fauzan⁵, and Ki Moo Lim¹˒⁴˒⁵*
 
-¹ Computational Medicine Lab, Department of Medical IT Convergence Engineering, Kumoh National Institute of Technology, Gumi, 39177, Republic of Korea.  
-² Computational Medicine Lab, Department of IT Convergence Engineering, Kumoh National Institute of Technology, Gumi, 39177, Republic of Korea.  
-³ Telecommunication Engineering Study Program, School of Electrical Engineering, Telkom University Main Campus, Bandung, Indonesia.  
-⁴ Computational Medicine Lab, Department of Biomedical Engineering, Kumoh National Institute of Technology, Gumi, 39177, Republic of Korea.  
-⁵ Meta Heart Co., Ltd, Gumi, 39253, Republic of Korea.  
+¹ Computational Medicine Lab, Department of Medical IT Convergence Engineering, Kumoh National Institute of Technology, Gumi 39177, Republic of Korea  
+² Computational Medicine Lab, Department of IT Convergence Engineering, Kumoh National Institute of Technology, Gumi 39177, Republic of Korea  
+³ Telecommunication Engineering Study Program, School of Electrical Engineering, Telkom University Main Campus, Bandung, Indonesia  
+⁴ Computational Medicine Lab, Department of Biomedical Engineering, Kumoh National Institute of Technology, Gumi 39177, Republic of Korea  
+⁵ Meta Heart Co., Ltd., Gumi 39253, Republic of Korea  
 
-*Corresponding author: [kmlim@kumoh.ac.kr](mailto:kmlim@kumoh.ac.kr)
+\*Corresponding author: kmlim@kumoh.ac.kr  
 
-ToxCML is a large-scale hybrid **q‑RASAR** framework-based platform that integrates consensus QSAR and consensus read-across into a weight-optimized workflow for multi-endpoint toxicity prediction. It is designed to provide chemically contextualized, applicability-domain–aware predictions that can support large-scale toxicity screening, hazard prioritization, and reduction of animal testing.
+---
 
-## Study overview
+## Overview
 
-Conventional animal-based toxicity testing is time-consuming, expensive, and ethically challenging, motivating the development of computational in silico methods. In this project, ToxCML combines:
-- Machine-learning–based consensus QSAR models built on multiple molecular representations (MACCS, Morgan, APF, RDKit fingerprints, and physicochemical descriptors) using Random Forest, XGBoost, and Support Vector Machines (SVM).
-- Similarity-based consensus read-across models.
-- Pre-computed tiered applicability-domain (AD) annotations for each compound and endpoint (INSIDE vs OUTSIDE).
-- Integration of consensus QSAR and consensus read-across into a unified hybrid q‑RASAR framework.
+ToxCML is a large-scale hybrid **mfCoQ-RASAR** (multi-feature Consensus quantitative Read-Across Structure–Activity Relationship) platform that explicitly integrates consensus QSAR and consensus read-across within a single, weight-optimized predictive framework for multi-endpoint toxicity prediction. The platform is designed to provide chemically contextualized and applicability-domain–aware predictions, supporting large-scale toxicity screening, hazard prioritization, and the reduction of animal testing.
 
-The hybrid q‑RASAR framework predicts **18 toxicity endpoints** for **53,378 unique chemicals**, achieving strong performance on unseen test sets and external validation sets (AUC ≈ 0.86–0.99; ACC ≈ 0.75–0.98). Across endpoints, hybrid q‑RASAR consistently outperforms its individual components, with consensus QSAR remaining highly competitive and consensus read-across providing complementary discriminatory information.
+---
 
-## Toxicity endpoints
+## Study Overview
 
-ToxCML covers 18 curated toxicity endpoints spanning acute systemic toxicity, organ-specific toxicity, and drug-induced safety liabilities relevant to regulatory and drug discovery contexts.
+Conventional animal-based toxicity testing is costly, time-consuming, and ethically constrained, motivating the development of robust in silico alternatives. In this work, ToxCML:
+
+- Curates and standardizes SMILES-based toxicity datasets following QSAR-ready best practices, including structural validity checks, salt and solvent removal, parent structure selection, charge normalization, tautomer handling, stereochemical consistency, duplicate resolution, and label harmonization.
+- Computes multiple complementary molecular representations using RDKit and CDK, including MACCS keys, Morgan circular fingerprints, APF fingerprints, RDKit fingerprints, and physicochemical descriptors.
+- Trains descriptor-specific QSAR models using Random Forest, XGBoost, and Support Vector Machines with **10-fold Bemis–Murcko scaffold-based cross-validation**, selects the best-performing model per descriptor using a composite score  
+  \( S_m = (AUC_m + BACC_m) / 2 \), and constructs an **Sm-weighted consensus QSAR**.
+- Implements **multi-fingerprint similarity-based read-across** using k-nearest neighbors with Tanimoto similarity (MACCS, Morgan, APF, RDKit) and builds an **Sf-weighted consensus read-across** using  
+  \( S_f = (AUC_f + BACC_f) / 2 \).
+- Constructs a hybrid **mfCoQ-RASAR** model by linearly integrating consensus QSAR and consensus read-across predictions:  
+  \( P_{mfCoQ\text{-}RASAR} = w\,P_{QSAR}^{cons} + (1-w)\,P_{RA}^{cons} \),  
+  where the global weight \( w \) is optimized via 10-fold scaffold-based cross-validation on the training set.
+- Applies a **tiered applicability-domain (AD) framework**, consisting of QSAR AD, read-across AD, and their intersection as the mfCoQ-RASAR AD, to distinguish in-domain from out-of-domain predictions.
+
+Across 18 toxicity endpoints and evaluations on strictly unseen test or external validation sets, mfCoQ-RASAR models achieve AUC values of approximately 0.86–0.99 and BACC values of approximately 0.73–0.98, consistently outperforming individual consensus QSAR and consensus read-across models while preserving interpretability and applicability-domain transparency.
+
+---
+
+## Toxicity Endpoints
+
+ToxCML covers 18 curated toxicity endpoints spanning acute systemic toxicity, organ-specific toxicity, and drug-induced safety liabilities.
 
 | No. | Endpoint | Brief definition |
 |----:|----------|------------------|
-| 1 | **AMES Mutagenicity** | Potential of a compound to induce gene mutations in bacterial test systems (e.g., *Salmonella typhimurium*), serving as an initial indicator of genotoxicity. |
-| 2 | **Acute Dermal Toxicity** | Adverse systemic effects or mortality following single or short-term exposure via the skin, typically categorized using dermal LD₅₀ data. |
-| 3 | **Acute Inhalation Toxicity** | Toxic responses after brief inhalation exposure to gases, vapors, or aerosols, reflecting systemic hazard via the respiratory route. |
-| 4 | **Acute Oral Toxicity** | Systemic adverse effects or death after a single oral dose, classified according to LD₅₀-based regulatory categories. |
-| 5 | **Carcinogenicity** | Ability of a compound to induce or promote tumor formation following repeated or long-term exposure. |
-| 6 | **Cardiotoxicity** | Structural or functional damage to the heart, including effects on contractility, conduction, or rhythm. |
-| 7 | **DILI (Drug-Induced Liver Injury)** | Liver damage caused by drugs, ranging from mild enzyme elevations to severe hepatic failure. |
-| 8 | **Developmental Toxicity** | Adverse effects on embryo–fetal development, such as malformations, growth retardation, or prenatal death. |
-| 9 | **Drug Induced Nephrotoxicity (DIN)** | Kidney injury caused by drugs, affecting glomerular or tubular function and renal clearance. |
-| 10 | **Eye Irritation** | Reversible or irreversible ocular damage following direct contact with a test substance. |
-| 11 | **FDA MDD** | Maximum Daily Dose–oriented systemic toxicity endpoint, where compounds are labeled according to toxicity status at FDA-relevant maximum daily dose (MDD) levels. |
-| 12 | **Hematotoxicity** | Toxic effects on the blood and hematopoietic system, including changes in blood cell counts or bone marrow function. |
-| 13 | **Hepatotoxicity** | Structural or functional liver injury (e.g., enzyme elevations, cholestasis, or hepatocellular damage) caused by chemicals or drugs. |
-| 14 | **Mitochondrial Toxicity** | Impairment of mitochondrial function, such as disrupted oxidative phosphorylation or increased oxidative stress, leading to cellular dysfunction. |
-| 15 | **Neurotoxicity** | Adverse effects on the central or peripheral nervous system, impacting neuronal structure or function. |
-| 16 | **Respiratory Toxicity** | Toxic effects on the respiratory system, including airway inflammation, bronchoconstriction, or parenchymal lung damage. |
-| 17 | **Skin Irritation** | Non-immunologic inflammatory response of the skin (e.g., erythema, edema) after short-term topical exposure. |
-| 18 | **Skin Sensitization** | Immune-mediated allergic skin response (allergic contact dermatitis) following repeated exposure to a sensitizing chemical. |
+| 1 | **AMES Mutagenicity** | Bacterial mutagenicity assay (e.g., *Salmonella typhimurium*) for genotoxicity screening. |
+| 2 | **Acute Dermal Toxicity** | Systemic adverse effects following short-term dermal exposure (LD₅₀-based). |
+| 3 | **Acute Inhalation Toxicity** | Toxicity after short-term inhalation of gases, vapors, or aerosols. |
+| 4 | **Acute Oral Toxicity** | Adverse systemic effects following a single oral dose. |
+| 5 | **Carcinogenicity** | Tumorigenic potential under chronic or repeated exposure. |
+| 6 | **Cardiotoxicity** | Structural or functional cardiac injury affecting rhythm or contractility. |
+| 7 | **DILI** | Drug-induced liver injury ranging from enzyme elevations to liver failure. |
+| 8 | **Developmental Toxicity** | Adverse effects on embryo–fetal development. |
+| 9 | **Drug-Induced Nephrotoxicity** | Toxic injury to renal structure or function. |
+| 10 | **Eye Irritation** | Ocular damage following direct exposure. |
+| 11 | **FDA MDD** | Toxicity at FDA-oriented maximum daily dose thresholds. |
+| 12 | **Hematotoxicity** | Toxic effects on blood cells or hematopoietic tissues. |
+| 13 | **Hepatotoxicity** | Structural or functional liver injury. |
+| 14 | **Mitochondrial Toxicity** | Disruption of mitochondrial function or bioenergetics. |
+| 15 | **Neurotoxicity** | Adverse effects on the central or peripheral nervous system. |
+| 16 | **Respiratory Toxicity** | Toxic effects on the respiratory tract or lungs. |
+| 17 | **Skin Irritation** | Non-immunologic inflammatory skin responses. |
+| 18 | **Skin Sensitization** | Immune-mediated allergic contact dermatitis. |
 
-## Repository structure
+---
+
+## Repository Structure
+
+The repository follows the operational workflow of the ToxCML framework:
+
+- `README.md`  
+  Main documentation describing the study overview, workflow, and usage instructions.
 
 - `Dataset/`  
-  Curated datasets (SMILES and binary toxicity labels) for the 18 toxicity endpoints used to develop and validate the models.  
+  QSAR-ready curated datasets for all 18 endpoints, including SMILES and binary outcome labels. Scaffold-based training/test splits are provided for selected endpoints.
 
-- `AD Analysis/`  
-  Pre-computed applicability-domain outputs for each endpoint, indicating whether each compound is classified as **INSIDE** or **OUTSIDE** the final q‑RASAR AD (no AD code is provided, only the annotated results).  
+- `Molecular Descriptor Computation_Preprocessing data.ipynb`  
+  QSAR-ready data curation and molecular descriptor computation.
 
-- `Molecular Descriptor Computation_Preprosesing data.ipynb`  
-  Notebook for data preprocessing and molecular feature computation:
-  - Input: SMILES-based datasets from `Dataset/`.  
-  - Output: MACCS, Morgan, APF, RDKit fingerprints and physicochemical descriptors for each compound.  
+- `Training_Consensus_QSAR_Fingerprint_10foldCrossvalidation.ipynb`  
+  Descriptor-specific QSAR model training using scaffold-based cross-validation.
 
-- `Training_Consensus QSAR_Fingerprint_10foldCrossvalidation.ipynb`  
-  Notebook for training fingerprint-based QSAR models (e.g., Random Forest, XGBoost, SVM using MACCS, Morgan, APF):  
-  - Performs 10‑fold cross-validation per fingerprint–algorithm combination.  
-  - Produces prediction probabilities that will be integrated into consensus QSAR.  
+- `Training_Consensus_QSAR_PhysicochemicalProperties_10foldCrossvalidation.ipynb`  
+  QSAR modeling based on physicochemical descriptors.
 
-- `Training_Consensus QSAR_PhysicochemicalProperties_10foldCrossvalidation.ipynb`  
-  Notebook for training descriptor-based QSAR models using physicochemical properties:  
-  - Trains multiple algorithms with 10‑fold cross-validation.  
-  - Generates consensus QSAR probabilities from descriptor-based models.  
+- `Model_Performance_Evaluation_Consensus_QSAR.ipynb`  
+  Construction and evaluation of the Sm-weighted consensus QSAR.
 
-- `Model Performance Evaluation 1_Consensus QSAR.ipynb`  
-  Notebook for evaluating consensus QSAR on unseen test or external validation sets:  
-  - Computes ACC, AUC, sensitivity, specificity, and confidence intervals.  
+- `Model_Performance_Evaluation_Consensus_ReadAcross.ipynb`  
+  Similarity-based read-across modeling and Sf-weighted consensus construction.
 
-- `Model Performance Evaluation 2_Consensus Read-Across Evaluation.ipynb`  
-  Notebook for building and evaluating consensus read-across models:  
-  - Uses k‑nearest neighbor–type similarity (e.g., Tanimoto on MACCS, Morgan, APF, RDKit fingerprints).  
-  - Aggregates fingerprint-specific read-across probabilities into a consensus read-across score.  
+- `mfCoQ-RASAR_Evaluation_Framework.ipynb`  
+  Hybrid mfCoQ-RASAR construction, weight optimization, and evaluation.
 
-- `q-RASAR_Evaluation_Framework.ipynb`  
-  Notebook for constructing and evaluating the **hybrid q‑RASAR** framework:  
-  - Integrates consensus QSAR and consensus read-across probabilities via a linear weighting scheme.  
-  - Optimizes the weight to jointly maximize predictive power (e.g., ACC and AUC).  
+- `AD_Analysis/` and `AD_Analysis.ipynb`  
+  Applicability-domain analysis for QSAR, read-across, and mfCoQ-RASAR models.
 
-- `.gitattributes`  
-  Git configuration for handling specific file types and line endings.
+- `SHAP/` and `SHAP_Analysis.ipynb`  
+  SHAP-based explainability analysis for descriptor-specific QSAR models.
 
-## Workflow: step-by-step
+---
 
-The typical workflow for reproducing the ToxCML hybrid q‑RASAR framework is:
+## How to Cite
 
-### 1. Molecular descriptor and fingerprint computation
+If you use this repository, the models, or any derived results in your work, please cite the corresponding ToxCML mfCoQ-RASAR manuscript once published. Until then, you may cite it as:
 
-**Notebook:**  
-`Molecular Descriptor Computation_Preprosesing data.ipynb`  
-
-**Input:**  
-- SMILES-based datasets from `Dataset/` (18 endpoints, 53,378 unique compounds).
-
-**What this step does:**  
-- Performs structure and label preprocessing (e.g., SMILES validation, duplicate removal, label harmonization).  
-- Computes multiple molecular representations for each compound:
-  - MACCS keys.  
-  - Morgan circular fingerprints.  
-  - Atom Pair (APF) fingerprints.  
-  - RDKit fingerprints.  
-  - Physicochemical descriptors.
-
-**Output:**  
-- Feature matrices (fingerprints + physicochemical descriptors) ready for model development.
-
-### 2. Development of the consensus QSAR framework
-
-This stage trains QSAR models separately on fingerprint-based features and physicochemical descriptors, then aggregates them into a consensus QSAR scheme.
-
-#### 2.1 Training fingerprint-based QSAR models
-
-**Notebook:**  
-`Training_Consensus QSAR_Fingerprint_10foldCrossvalidation.ipynb`  
-
-**What this step does:**  
-- Trains QSAR models using MACCS, Morgan, and APF fingerprints with machine-learning algorithms (e.g., Random Forest, XGBoost, SVM).  
-- Applies 10‑fold cross-validation to optimize and assess each fingerprint–algorithm combination.  
-- Produces predicted probabilities for each endpoint and configuration.  
-
-#### 2.2 Training physicochemical descriptor–based QSAR models
-
-**Notebook:**  
-`Training_Consensus QSAR_PhysicochemicalProperties_10foldCrossvalidation.ipynb`  
-
-**What this step does:**  
-- Trains QSAR models using physicochemical descriptors as input features.  
-- Performs 10‑fold cross-validation to evaluate predictive stability and select high-performing models.  
-- Outputs predicted probabilities for the descriptor-based QSAR models.
-  
-#### 2.3 Consensus QSAR model evaluation
-
-**Notebook:**  
-`Model Performance Evaluation 1_Consensus QSAR.ipynb`  
-
-**What this step does:**  
-- Integrates predicted probabilities from selected fingerprint- and descriptor-based models into a **consensus QSAR** probability (e.g., arithmetic mean across models/representations).  
-- Evaluates consensus QSAR performance on unseen test sets or external validation sets.  
-- Reports ACC, AUC, sensitivity, specificity, and 95% confidence intervals, showing that consensus QSAR is competitive across endpoints.
-
-### 3. Development of the consensus read-across framework
-
-**Notebook:**  
-`Model Performance Evaluation 2_Consensus Read-Across Evaluation.ipynb`  
-
-**What this step does:**  
-- Implements read-across predictions using similarity between query and training compounds:
-  - Computes similarity metrics (e.g., Tanimoto) on MACCS, Morgan, APF, and RDKit fingerprints.  
-  - Selects k nearest neighbors and estimates read-across probabilities from their toxicity labels.  
-- Aggregates fingerprint-specific read-across probabilities into a **consensus read-across** score.  
-- Evaluates consensus read-across using ACC, AUC, and other metrics on unseen data, demonstrating its complementary predictive and discriminatory contribution relative to QSAR.
-
-### 4. Hybrid q‑RASAR integration of consensus QSAR and read-across
-
-**Notebook:**  
-`q-RASAR_Evaluation_Framework.ipynb`  
-
-**What this step does:**  
-- Integrates the **consensus QSAR** probability and **consensus read-across** probability into a single hybrid **q‑RASAR** probability using a linear weighting scheme:
-  $P_{q\text{-}RASAR} = w \cdot P_{QSAR,\ consensus} + (1 - w) \cdot P_{RA,\ consensus}$
-- Performs grid search over the weight \( w \) to maximize a joint performance score (e.g., combining AUC and ACC).  
-- Evaluates hybrid q‑RASAR on unseen test and external validation sets, showing that the hybrid model consistently outperforms individual consensus QSAR and consensus read-across across the 18 endpoints.
-
-## Applicability domain and chemical space analysis
-
-**Folder:**  
-`AD Analysis/`  
-
-**What this step contains:**  
-- Pre-computed applicability-domain annotations for all compounds and endpoints, indicating whether each compound is **INSIDE** or **OUTSIDE** the final q‑RASAR AD.  
-- These AD labels can be used to filter predictions and interpret model reliability.
-
-## How to cite
-
-If you use this repository, the code, or any derived models in your work, please cite (on-going publication).
+> Nursyafi FS, Pramudito MA, Fuadah YN, Izza RN, Fauzan AL, Lim KM.  
+> **ToxCML: A hybrid mfCoQ-RASAR platform integrating consensus QSAR and read-across for multi-endpoint toxicity prediction.** Manuscript in preparation.
