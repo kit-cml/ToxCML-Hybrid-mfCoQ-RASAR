@@ -89,6 +89,14 @@ ToxCML covers 18 curated toxicity endpoints spanning acute systemic toxicity, or
 
 ---
 
+# ToxCML: mfCoQ-RASAR Framework
+
+This repository provides the complete implementation of the **mfCoQ-RASAR** framework, a hybrid toxicity prediction platform that integrates **consensus QSAR**, **similarity-weighted read-across**, and their optimized coupling under a rigorous scaffold-based validation scheme.
+
+The framework is designed to deliver reliable, interpretable, and applicability-domain-aware predictions across multiple toxicity endpoints while maintaining broad chemical-space coverage.
+
+---
+
 ## Repository structure
 
 This repository mirrors your local ToxCML layout:
@@ -102,105 +110,127 @@ This repository mirrors your local ToxCML layout:
 
 - `Molecular Descriptor Computation_Preprosesing data (1).ipynb`  
   - QSAR-ready curation and descriptor computation:  
-    - Validates SMILES and removes unparsable/chemically implausible structures.  
-    - Standardization: removes salts/solvents, selects parent structures, normalizes charges, applies harmonized cleanup rules, and treats tautomers/stereochemistry consistently.  
-    - Identifies duplicates via canonical SMILES/InChIKey and removes records with conflicting labels.  
+    - Validates SMILES and removes unparsable or chemically implausible structures.  
+    - Standardization: removes salts and solvents, selects parent structures, normalizes charges, applies harmonized cleanup rules, and treats tautomers and stereochemistry consistently.  
+    - Identifies duplicates via canonical SMILES or InChIKey and removes records with conflicting labels.  
   - Outputs:  
     - MACCS (166-bit), Morgan (1024-bit), APF (1024-bit), RDKit fingerprints (2048-bit).  
     - 49 RDKit/CDK-based physicochemical descriptors.
 
 - `Training_Consensus QSAR_Fingerprint_10foldCrossvalidation (1).ipynb`  
-  - Trains fingerprint-based QSAR models (RF, XGB, SVM) on MACCS, Morgan, APF.  
-  - Uses **10-fold Bemis–Murcko scaffold-based CV** for hyperparameter tuning and performance estimation.  
-  - For each descriptor–algorithm model \(m\), computes \(AUC_m\), \(BACC_m\), and the composite score  
-    \(S_m = (AUC_m + BACC_m)/2\).  
-  - Selects one best model per descriptor (highest \(S_m\)) and saves the model and its \(S_m\).
+  - Trains fingerprint-based QSAR models (RF, XGB, SVM) on MACCS, Morgan, and APF fingerprints.  
+  - Uses **10-fold Bemis–Murcko scaffold-based cross-validation** for hyperparameter tuning and performance estimation.  
+  - For each descriptor–algorithm model $m$, computes $AUC_m$, $BACC_m$, and the composite score:
+
+    $$
+    S_m = \frac{AUC_m + BACC_m}{2}
+    $$
+
+  - Selects one best-performing model per descriptor (highest $S_m$) and saves the model together with its $S_m$.
 
 - `Training_Consensus QSAR_PhysicochemicalProperties_10foldCrossvalidation (1).ipynb`  
-  - Trains QSAR models on physicochemical descriptors (RF, XGB, SVM) with 10-fold scaffold-CV.  
-  - Computes and stores \(S_m\) for each descriptor–algorithm combination and selects the best physicochemical QSAR model per endpoint.
+  - Trains QSAR models on physicochemical descriptors (RF, XGB, SVM) using 10-fold scaffold-based cross-validation.  
+  - Computes $S_m$ for each descriptor–algorithm combination and selects the best physicochemical QSAR model per endpoint.
 
 - `Model Performance Evaluation 1_Consensus QSAR.ipynb`  
-  - Builds **consensus QSAR** by aggregating the best MACCS, Morgan, APF, and physicochemical models using **Sm-based weights**:  
-    \[
-    P_{QSAR}^{cons}(i) = \sum_m w_m P_m(i), \quad w_m = \frac{S_m}{\sum_k S_k}.
-    \]  
-  - Evaluates consensus QSAR on strictly unseen test/external sets using AUC, BACC, ACC, SEN, SPE, and 95% bootstrap confidence intervals.
+  - Builds the **consensus QSAR** model by aggregating the best MACCS, Morgan, APF, and physicochemical QSAR models using **$S_m$-based weights**:
+
+    $$
+    P_{QSAR}^{cons}(i) = \sum_m w_m \, P_m(i),
+    \qquad
+    w_m = \frac{S_m}{\sum_k S_k}
+    $$
+
+  - Evaluates consensus QSAR on strictly unseen test or external sets using AUC, BACC, ACC, SEN, SPE, and 95% bootstrap confidence intervals.
 
 - `Model Performance Evaluation 2_Consensus Read-Across Evaluation.ipynb`  
-  - Implements **k-NN similarity-weighted read-across** using MACCS, Morgan, APF, and RDKit fingerprints:  
-    - Computes Tanimoto similarity, selects k nearest neighbors, and derives similarity-weighted toxicity probabilities.  
-  - Provides baseline RA performance per fingerprint and per endpoint.
+  - Implements **k-nearest-neighbor similarity-weighted read-across** using MACCS, Morgan, APF, and RDKit fingerprints.  
+  - Computes Tanimoto similarity, selects the $k$ nearest neighbors, and derives similarity-weighted toxicity probabilities.  
+  - Provides baseline read-across performance per fingerprint and per endpoint.
 
 - `Weight Optimization_Consensus Read Across.ipynb`  
-  - **Required step for building consensus RA and mfCoQ‑RASAR.**  
-  - Uses 10-fold scaffold-CV on the training set to compute \(AUC_f\), \(BACC_f\), and  
-    \(S_f = (AUC_f + BACC_f)/2\) for each fingerprint type \(f\).  
-  - Derives **Sf-based weights** \(v_f = S_f / \sum_g S_g\) and builds the final **Sf-weighted consensus RA**:  
-    \[
-    P_{RA}^{cons}(q) = \sum_f v_f P_f(q).
-    \]  
-  - These consensus RA probabilities are then used as the RA component in the mfCoQ‑RASAR integration.
+  - **Required step for building consensus read-across and mfCoQ-RASAR.**  
+  - Uses 10-fold scaffold-based cross-validation on the training set to compute $AUC_f$, $BACC_f$, and:
+
+    $$
+    S_f = \frac{AUC_f + BACC_f}{2}
+    $$
+
+    for each fingerprint type $f$.  
+  - Derives **$S_f$-based weights** $v_f = S_f / \sum_g S_g$ and constructs the final **$S_f$-weighted consensus read-across**:
+
+    $$
+    P_{RA}^{cons}(q) = \sum_f v_f \, P_f(q)
+    $$
+
+  - These consensus read-across probabilities are used as the read-across component in the mfCoQ-RASAR model.
 
 - `mfCoQ-RASAR_Evaluation_Framework.ipynb`  
-  - Constructs and evaluates the **hybrid mfCoQ‑RASAR** predictor:  
-    \[
-    P_{mfCoQ\text{-}RASAR}(i; w) = w\,P_{QSAR}^{cons}(i) + (1-w)\,P_{RA}^{cons}(i).
-    \]  
-  - Performs **10-fold Bemis–Murcko scaffold-CV on the training set** to optimize the global weight \(w\):  
-    - In each fold \(f\), trains consensus QSAR and consensus RA on 9 folds and generates \(P_{QSAR}^{cons,f}\), \(P_{RA}^{cons,f}\) on the validation fold.  
-    - For each candidate \(w\), computes  
-      \(P_{mfCoQ\text{-}RASAR}^{(f,w)}\), then \(AUC_{f,w}\), \(BACC_{f,w}\), and  
-      \(S_{f,w} = (AUC_{f,w} + BACC_{f,w})/2\).  
-    - Averages across folds:  
-      \(S_w = \frac{1}{K} \sum_f S_{f,w}\) and selects  
-      \(w^* = \arg\max_w S_w\).  
-  - After obtaining \(w^*\), retrains consensus QSAR and consensus RA on the full training set and applies the fixed \(w^*\) to test/external sets, reporting performance (AUC, BACC, ACC, SEN, SPE, 95% CI).
+  - Constructs and evaluates the **hybrid mfCoQ-RASAR** predictor:
+
+    $$
+    P_{\mathrm{mfCoQ\text{-}RASAR}}(i; w)
+    = w \, P_{QSAR}^{cons}(i) + (1 - w) \, P_{RA}^{cons}(i)
+    $$
+
+  - Performs **10-fold Bemis–Murcko scaffold-based cross-validation** on the training set to optimize the global weight $w$:  
+    - In each fold $f$, trains consensus QSAR and consensus read-across on 9 folds and generates $P_{QSAR}^{cons,f}$ and $P_{RA}^{cons,f}$ on the validation fold.  
+    - For each candidate weight $w$, computes:
+
+      $$
+      S_{f,w} = \frac{AUC_{f,w} + BACC_{f,w}}{2}
+      $$
+
+    - Averages performance across folds:
+
+      $$
+      S_w = \frac{1}{K} \sum_f S_{f,w}
+      $$
+
+    - Selects the optimal coupling weight:
+
+      $$
+      w^* = \operatorname*{arg\,max}_w S_w
+      $$
+
+  - After identifying $w^*$, retrains consensus QSAR and consensus read-across on the full training set and applies the fixed $w^*$ to test or external sets, reporting AUC, BACC, ACC, SEN, SPE, and 95% bootstrap confidence intervals.
 
 - `AD Analysis/` and `AD Analysis.ipynb`  
-  - Contain **pre-computed applicability-domain annotations** (INSIDE/OUTSIDE) for QSAR, RA, and mfCoQ‑RASAR per endpoint.  
-  - The notebook describes:  
-    - QSAR AD: maximum Tanimoto similarity (Morgan, MACCS, APF) and leverage in physicochemical descriptor space, combined via majority voting.  
-    - RA AD: mean similarity to k neighbors per fingerprint and cut-offs derived from the training set distribution.  
-    - mfCoQ‑RASAR AD: the intersection of QSAR AD and RA AD.
+  - Contain pre-computed **applicability-domain (AD)** annotations (INSIDE or OUTSIDE) for QSAR, read-across, and mfCoQ-RASAR predictions.  
+  - QSAR AD is defined using maximum Tanimoto similarity (Morgan, MACCS, APF) and leverage in physicochemical descriptor space, combined by majority voting.  
+  - Read-across AD is defined based on the mean similarity to the $k$ nearest neighbors per fingerprint with thresholds derived from training-set distributions.  
+  - mfCoQ-RASAR AD is defined as the intersection of QSAR AD and read-across AD.
 
 - `SHAP/` and `SHAP Analysis (2).ipynb`  
-  - SHAP-based explainable AI analysis for top-performing descriptor-specific QSAR models per endpoint.  
-  - Uses TreeExplainer for RF/XGB and KernelExplainer for SVM.  
-  - Provides fragment contribution maps (Morgan-based) projecting important fingerprint bits back onto molecular structures.
+  - SHAP-based explainable AI analysis for the top-performing descriptor-specific QSAR models per endpoint.  
+  - Uses TreeExplainer for RF and XGB models and KernelExplainer for SVM models.  
+  - Provides fragment contribution maps (Morgan-based) by projecting important fingerprint bits back onto molecular structures.
 
 - `.gitattributes`  
-  - Git configuration for line endings and handling of large/binary files.
+  - Git configuration for line endings and handling of large or binary files.
 
 ---
 
-## Workflow: reproducing the mfCoQ‑RASAR framework
+## Workflow: reproducing the mfCoQ-RASAR framework
 
 1. **Data curation and preprocessing**  
-   - Run `Molecular Descriptor Computation_Preprosesing data (1).ipynb`.  
-   - Input: raw endpoint datasets in `Dataset/`.  
-   - Output: QSAR-ready datasets plus all fingerprints and physicochemical descriptors.
+   Run `Molecular Descriptor Computation_Preprosesing data (1).ipynb` to generate QSAR-ready datasets and molecular descriptors.
 
 2. **Descriptor-specific QSAR model development**  
-   - Run `Training_Consensus QSAR_Fingerprint_10foldCrossvalidation (1).ipynb` for MACCS/Morgan/APF models (RF/XGB/SVM, scaffold-CV, compute \(S_m\)).  
-   - Run `Training_Consensus QSAR_PhysicochemicalProperties_10foldCrossvalidation (1).ipynb` for physicochemical-based models (scaffold-CV, \(S_m\)).
+   Train fingerprint-based and physicochemical QSAR models using scaffold-based cross-validation and compute $S_m$ scores.
 
 3. **Consensus QSAR evaluation**  
-   - Use `Model Performance Evaluation 1_Consensus QSAR.ipynb` to build Sm-weighted consensus QSAR and evaluate on test/external sets with AUC, BACC, ACC, SEN, SPE, and 95% confidence intervals.
+   Build the $S_m$-weighted consensus QSAR model and evaluate it on unseen test or external datasets.
 
-4. **Read-across development and Sf-based weighting (required)**  
-   - Run `Model Performance Evaluation 2_Consensus Read-Across Evaluation.ipynb` to implement multi-fingerprint k-NN RA and obtain per-fingerprint RA probabilities.  
-   - Run `Weight Optimization_Consensus Read Across.ipynb` to compute \(S_f\) via 10-fold scaffold-CV and build the **Sf-weighted consensus RA** used in mfCoQ‑RASAR.
+4. **Read-across development and weighting**  
+   Perform multi-fingerprint read-across and derive the $S_f$-weighted consensus read-across model.
 
-5. **Hybrid mfCoQ‑RASAR construction and evaluation**  
-   - Run `mfCoQ-RASAR_Evaluation_Framework.ipynb` to:  
-     - Optimize \(w\) using 10-fold scaffold-CV on the training set.  
-     - Retrain consensus QSAR and consensus RA on the full training set.  
-     - Evaluate mfCoQ‑RASAR with \(w^*\) on test/external sets with full metrics and 95% bootstrap confidence intervals.
+5. **Hybrid mfCoQ-RASAR construction**  
+   Optimize the QSAR–read-across coupling weight $w$, retrain models on the full training set, and evaluate final performance.
 
-6. **Applicability domain and explainability**  
-   - Use `AD Analysis.ipynb` and `AD Analysis/` to analyze AD and filter predictions by in-domain vs out-of-domain status.  
-   - Use `SHAP Analysis (2).ipynb` and `SHAP/` to interpret QSAR predictions at descriptor and fragment level.
+6. **Applicability-domain analysis and explainability**  
+   Analyze prediction reliability using applicability-domain definitions and interpret QSAR predictions using SHAP.
+
 
 ---
 
