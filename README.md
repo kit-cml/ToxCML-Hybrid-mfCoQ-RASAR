@@ -97,117 +97,166 @@ The framework is designed to deliver reliable, interpretable, and applicability-
 
 ---
 
-## Repository structure
+# ToxCML: A Consensus QSAR–Read-Across Framework for Multi-Endpoint Toxicity Prediction
 
-This repository mirrors your local ToxCML layout:
+This repository contains the full implementation of the **ToxCML / mfCoQ-RASAR** framework, a hybrid in silico toxicity prediction platform that integrates **consensus QSAR**, **similarity-based read-across**, and their **optimized coupling** across multiple toxicity endpoints.
 
-- `README.md`  
-  Main documentation (study overview, workflow, and usage).
+The workflow emphasizes:
+- robust scaffold-aware validation,
+- broad chemical-space coverage,
+- transparent applicability-domain (AD) definition, and
+- reliability-aware prediction with confidence intervals.
 
-- `Dataset/`  
-  - QSAR-ready curated datasets for the 18 endpoints (SMILES + binary `Outcome` labels) after structural and label curation.  
-  - For some endpoints, scaffold-based train/test splits are already provided.
+---
 
-- `Molecular Descriptor Computation_Preprosesing data (1).ipynb`  
-  - QSAR-ready curation and descriptor computation:  
-    - Validates SMILES and removes unparsable or chemically implausible structures.  
-    - Standardization: removes salts and solvents, selects parent structures, normalizes charges, applies harmonized cleanup rules, and treats tautomers and stereochemistry consistently.  
-    - Identifies duplicates via canonical SMILES or InChIKey and removes records with conflicting labels.  
-  - Outputs:  
-    - MACCS (166-bit), Morgan (1024-bit), APF (1024-bit), RDKit fingerprints (2048-bit).  
-    - 49 RDKit/CDK-based physicochemical descriptors.
+## Repository Structure
 
-- `Training_Consensus QSAR_Fingerprint_10foldCrossvalidation (1).ipynb`  
-  - Trains fingerprint-based QSAR models (RF, XGB, SVM) on MACCS, Morgan, and APF fingerprints.  
-  - Uses **10-fold Bemis–Murcko scaffold-based cross-validation** for hyperparameter tuning and performance estimation.  
-  - For each descriptor–algorithm model $m$, computes $AUC_m$, $BACC_m$, and the composite score:
+This repository mirrors the local ToxCML project layout.
 
-    $$
-    S_m = \frac{AUC_m + BACC_m}{2}
-    $$
+### `README.md`
+Main documentation describing the study motivation, workflow, and usage.
 
-  - Selects one best-performing model per descriptor (highest $S_m$) and saves the model together with its $S_m$.
+---
 
-- `Training_Consensus QSAR_PhysicochemicalProperties_10foldCrossvalidation (1).ipynb`  
-  - Trains QSAR models on physicochemical descriptors (RF, XGB, SVM) using 10-fold scaffold-based cross-validation.  
-  - Computes $S_m$ for each descriptor–algorithm combination and selects the best physicochemical QSAR model per endpoint.
+### `Dataset/`
+- QSAR-ready curated datasets for **18 toxicity endpoints**  
+  (SMILES + binary `Outcome` labels).
+- Structural and label curation already applied.
+- For selected endpoints, **scaffold-based train/test splits** are provided.
 
-- `Model Performance Evaluation 1_Consensus QSAR.ipynb`  
-  - Builds the **consensus QSAR** model by aggregating the best MACCS, Morgan, APF, and physicochemical QSAR models using **$S_m$-based weights**:
+---
 
-    $$
-    P_{QSAR}^{cons}(i) = \sum_m w_m \, P_m(i),
-    \qquad
-    w_m = \frac{S_m}{\sum_k S_k}
-    $$
+### `Molecular Descriptor Computation_Preprosesing data (1).ipynb`
+QSAR-ready data curation and descriptor computation:
+- SMILES validation and removal of unparsable or chemically implausible structures.
+- Molecular standardization:
+  - salt and solvent removal,
+  - parent structure selection,
+  - charge normalization,
+  - harmonized cleanup rules,
+  - consistent handling of tautomers and stereochemistry.
+- Duplicate detection using canonical SMILES or InChIKey.
+- Removal of compounds with conflicting labels.
 
-  - Evaluates consensus QSAR on strictly unseen test or external sets using AUC, BACC, ACC, SEN, SPE, and 95% bootstrap confidence intervals.
+**Outputs:**
+- Fingerprints:
+  - MACCS (166-bit)
+  - Morgan (1024-bit)
+  - APF (1024-bit)
+  - RDKit fingerprints (2048-bit)
+- 49 RDKit/CDK-based physicochemical descriptors.
 
-- `Model Performance Evaluation 2_Consensus Read-Across Evaluation.ipynb`  
-  - Implements **k-nearest-neighbor similarity-weighted read-across** using MACCS, Morgan, APF, and RDKit fingerprints.  
-  - Computes Tanimoto similarity, selects the $k$ nearest neighbors, and derives similarity-weighted toxicity probabilities.  
-  - Provides baseline read-across performance per fingerprint and per endpoint.
+---
 
-- `Weight Optimization_Consensus Read Across.ipynb`  
-  - **Required step for building consensus read-across and mfCoQ-RASAR.**  
-  - Uses 10-fold scaffold-based cross-validation on the training set to compute $AUC_f$, $BACC_f$, and:
+### `Training_Consensus QSAR_Fingerprint_10foldCrossvalidation (1).ipynb`
+- Trains fingerprint-based QSAR models (RF, XGB, SVM) using MACCS, Morgan, and APF fingerprints.
+- Uses **10-fold Bemis–Murcko scaffold-based cross-validation**.
+- For each descriptor–algorithm model *m*, computes:
+  - AUCₘ
+  - BACCₘ
+  - composite score  
+    **Sₘ = (AUCₘ + BACCₘ) / 2**
+- Selects the best model per fingerprint type based on the highest Sₘ.
+- Saves the selected models together with their Sₘ values.
 
-    $$
-    S_f = \frac{AUC_f + BACC_f}{2}
-    $$
+---
 
-    for each fingerprint type $f$.  
-  - Derives **$S_f$-based weights** $v_f = S_f / \sum_g S_g$ and constructs the final **$S_f$-weighted consensus read-across**:
+### `Training_Consensus QSAR_PhysicochemicalProperties_10foldCrossvalidation (1).ipynb`
+- Trains QSAR models on physicochemical descriptors (RF, XGB, SVM).
+- Uses 10-fold scaffold-based cross-validation.
+- Computes Sₘ for each descriptor–algorithm combination.
+- Selects the best physicochemical QSAR model per endpoint.
 
-    $$
-    P_{RA}^{cons}(q) = \sum_f v_f \, P_f(q)
-    $$
+---
 
-  - These consensus read-across probabilities are used as the read-across component in the mfCoQ-RASAR model.
+### `Model Performance Evaluation 1_Consensus QSAR.ipynb`
+- Builds the **consensus QSAR** model by aggregating:
+  - MACCS-based QSAR
+  - Morgan-based QSAR
+  - APF-based QSAR
+  - physicochemical QSAR
+- Uses **Sₘ-based weights**, where  
+  weightₘ = Sₘ / Σ Sₖ
+- Consensus QSAR prediction for compound *i* is the weighted average of individual QSAR predictions.
+- Evaluates performance on strictly unseen test or external sets:
+  - AUC, BACC, ACC, SEN, SPE
+  - 95% bootstrap confidence intervals.
 
-- `mfCoQ-RASAR_Evaluation_Framework.ipynb`  
-  - Constructs and evaluates the **hybrid mfCoQ-RASAR** predictor:
+---
 
-    $$
-    P_{\mathrm{mfCoQ\text{-}RASAR}}(i; w)
-    = w \, P_{QSAR}^{cons}(i) + (1 - w) \, P_{RA}^{cons}(i)
-    $$
+### `Model Performance Evaluation 2_Consensus Read-Across Evaluation.ipynb`
+- Implements **k-nearest-neighbor similarity-weighted read-across**.
+- Uses MACCS, Morgan, APF, and RDKit fingerprints.
+- Computes Tanimoto similarity and selects the *k* nearest neighbors.
+- Derives similarity-weighted toxicity probabilities.
+- Reports baseline read-across performance per fingerprint and per endpoint.
 
-  - Performs **10-fold Bemis–Murcko scaffold-based cross-validation** on the training set to optimize the global weight $w$:  
-    - In each fold $f$, trains consensus QSAR and consensus read-across on 9 folds and generates $P_{QSAR}^{cons,f}$ and $P_{RA}^{cons,f}$ on the validation fold.  
-    - For each candidate weight $w$, computes:
+---
 
-      $$
-      S_{f,w} = \frac{AUC_{f,w} + BACC_{f,w}}{2}
-      $$
+### `Weight Optimization_Consensus Read Across.ipynb`
+**Required step for building consensus read-across and mfCoQ-RASAR.**
 
-    - Averages performance across folds:
+- Uses 10-fold scaffold-based cross-validation on the training set.
+- For each fingerprint type *f*, computes:
+  - AUC_f
+  - BACC_f
+  - composite score  
+    **S_f = (AUC_f + BACC_f) / 2**
+- Derives **S_f-based weights**:  
+  v_f = S_f / Σ S_g
+- Builds the final **consensus read-across** as the weighted average of fingerprint-specific read-across predictions.
+- These consensus read-across probabilities are used as the read-across component in mfCoQ-RASAR.
 
-      $$
-      S_w = \frac{1}{K} \sum_f S_{f,w}
-      $$
+---
 
-    - Selects the optimal coupling weight:
+### `mfCoQ-RASAR_Evaluation_Framework.ipynb`
+- Constructs and evaluates the **hybrid mfCoQ-RASAR** predictor, which linearly combines:
+  - consensus QSAR predictions, and
+  - consensus read-across predictions.
+- Performs **10-fold Bemis–Murcko scaffold-based cross-validation** to optimize the global coupling weight *w*.
+- In each fold:
+  - consensus QSAR and consensus read-across are trained on 9 folds,
+  - predictions are generated for the validation fold.
+- For each candidate weight *w*, computes:
+  - AUC
+  - BACC
+  - composite score  
+    **S_f,w = (AUC_f,w + BACC_f,w) / 2**
+- Averages performance across folds:
+  - **S_w = (1 / K) × Σ S_f,w**
+- Selects the optimal coupling weight *w\** that maximizes S_w.
+- Retrains final models on the full training set using *w\** and evaluates on test or external sets with confidence intervals.
 
-      $$
-      w^* = \operatorname*{arg\,max}_w S_w
-      $$
+---
 
-  - After identifying $w^*$, retrains consensus QSAR and consensus read-across on the full training set and applies the fixed $w^*$ to test or external sets, reporting AUC, BACC, ACC, SEN, SPE, and 95% bootstrap confidence intervals.
+### `AD Analysis/` and `AD Analysis.ipynb`
+- Pre-computed **applicability-domain (AD)** annotations for:
+  - QSAR,
+  - read-across,
+  - mfCoQ-RASAR.
+- QSAR AD:
+  - maximum Tanimoto similarity (MACCS, Morgan, APF),
+  - leverage in physicochemical descriptor space,
+  - combined by majority voting.
+- Read-across AD:
+  - based on mean similarity to the *k* nearest neighbors,
+  - thresholds derived from training-set distributions.
+- mfCoQ-RASAR AD:
+  - defined as the intersection of QSAR AD and read-across AD.
 
-- `AD Analysis/` and `AD Analysis.ipynb`  
-  - Contain pre-computed **applicability-domain (AD)** annotations (INSIDE or OUTSIDE) for QSAR, read-across, and mfCoQ-RASAR predictions.  
-  - QSAR AD is defined using maximum Tanimoto similarity (Morgan, MACCS, APF) and leverage in physicochemical descriptor space, combined by majority voting.  
-  - Read-across AD is defined based on the mean similarity to the $k$ nearest neighbors per fingerprint with thresholds derived from training-set distributions.  
-  - mfCoQ-RASAR AD is defined as the intersection of QSAR AD and read-across AD.
+---
 
-- `SHAP/` and `SHAP Analysis (2).ipynb`  
-  - SHAP-based explainable AI analysis for the top-performing descriptor-specific QSAR models per endpoint.  
-  - Uses TreeExplainer for RF and XGB models and KernelExplainer for SVM models.  
-  - Provides fragment contribution maps (Morgan-based) by projecting important fingerprint bits back onto molecular structures.
+### `SHAP/` and `SHAP Analysis (2).ipynb`
+- SHAP-based explainable AI analysis for top-performing QSAR models.
+- Uses:
+  - TreeExplainer for RF and XGB,
+  - KernelExplainer for SVM.
+- Provides fragment-level contribution maps by projecting important Morgan fingerprint bits onto molecular structures.
 
-- `.gitattributes`  
-  - Git configuration for line endings and handling of large or binary files.
+---
+
+### `.gitattributes`
+Git configuration for consistent line endings and handling of large or binary files.
 
 ---
 
