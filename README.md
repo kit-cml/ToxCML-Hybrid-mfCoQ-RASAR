@@ -27,15 +27,36 @@ ToxCML is a large-scale hybrid **mfCoQ‑RASAR** (multi-feature Consensus quanti
 
 Conventional animal-based toxicity testing is costly, time-consuming, and ethically constrained, motivating robust in silico alternatives. In this work, ToxCML:
 
-- Curates and standardizes SMILES-based toxicity datasets following QSAR-ready best practices (validity checks, salt/solvent removal, parent structure selection, charge normalization, tautomer handling, stereochemical consistency, duplicate resolution, and label harmonization).  
-- Computes multiple complementary molecular representations using RDKit and CDK: MACCS keys, Morgan circular fingerprints, APF, RDKit fingerprints, and physicochemical descriptors.  
-- Trains **descriptor-specific QSAR models** (Random Forest, XGBoost, SVM) with **10-fold scaffold-based cross-validation**, selects the best model per descriptor using a composite score  
-  \(S_m = (AUC_m + BACC_m)/2\), and builds an **Sm-weighted consensus QSAR**.  
-- Implements **multi-fingerprint read-across** (k-NN similarity-weighted using Tanimoto on MACCS, Morgan, APF, RDKit fingerprints) and builds an **Sf-weighted consensus RA** using  
-  \(S_f = (AUC_f + BACC_f)/2\).  
-- Constructs a hybrid **mfCoQ‑RASAR** ensemble that combines consensus QSAR and consensus RA probabilities via a linear integration:  
-  \(P_{mfCoQ\text{-}RASAR} = w\,P_{QSAR}^{cons} + (1-w)\,P_{RA}^{cons}\), with **\(w\)** optimized by 10-fold scaffold-CV on the training set.  
-- Applies a **tiered applicability-domain (AD) framework** (QSAR AD, RA AD, and mfCoQ‑RASAR AD as their intersection) to flag in-domain vs out-of-domain predictions.  
+- Curates and standardizes SMILES-based toxicity datasets following QSAR-ready best practices 
+  (validity checks, salt/solvent removal, parent structure selection, charge normalization, 
+  tautomer handling, stereochemical consistency, duplicate resolution, and label harmonization).
+
+- Computes multiple complementary molecular representations using RDKit and CDK: 
+  MACCS keys, Morgan circular fingerprints, APF, RDKit fingerprints, and physicochemical descriptors.
+
+- Trains **descriptor-specific QSAR models** (Random Forest, XGBoost, SVM) with 
+  **10-fold scaffold-based cross-validation**, selects the best model per descriptor using the 
+  composite score:
+
+  Sm = (AUCm + BACCm) / 2
+
+  and builds an Sm-weighted consensus QSAR.
+
+- Implements **multi-fingerprint read-across** (k-NN similarity-weighted using Tanimoto on MACCS, 
+  Morgan, APF, RDKit fingerprints) and builds an Sf-weighted consensus RA using:
+
+  Sf = (AUCf + BACCf) / 2
+
+- Constructs a hybrid **mfCoQ‑RASAR** ensemble that combines consensus QSAR and consensus RA 
+  probabilities via a linear integration:
+
+  P_mfCoQ-RASAR = w * P_QSAR,cons + (1 - w) * P_RA,cons
+
+  where the global weight w is optimized by 10-fold scaffold-CV on the training set.
+
+- Applies a **tiered applicability-domain (AD) framework** (QSAR AD, RA AD, and mfCoQ‑RASAR AD 
+  as their intersection) to flag in-domain vs out-of-domain predictions.
+
 
 Across 18 toxicity endpoints and evaluation on unseen test or external validation sets, mfCoQ‑RASAR models achieve AUC ≈ 0.86–0.99 and BACC ≈ 0.73–0.98, consistently outperforming individual consensus QSAR and consensus read-across while preserving interpretability and AD transparency.
 
