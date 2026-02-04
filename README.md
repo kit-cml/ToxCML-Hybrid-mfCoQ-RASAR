@@ -89,15 +89,7 @@ ToxCML covers 18 curated toxicity endpoints spanning acute systemic toxicity, or
 
 ---
 
-# ToxCML: mfCoQ-RASAR Framework
-
-This repository provides the complete implementation of the **mfCoQ-RASAR** framework, a hybrid toxicity prediction platform that integrates **consensus QSAR**, **similarity-weighted read-across**, and their optimized coupling under a rigorous scaffold-based validation scheme.
-
-The framework is designed to deliver reliable, interpretable, and applicability-domain-aware predictions across multiple toxicity endpoints while maintaining broad chemical-space coverage.
-
----
-
-# ToxCML: A Consensus QSAR–Read-Across Framework for Multi-Endpoint Toxicity Prediction
+# ToxCML: A Hybrid mfCoQ‑RASAR
 
 This repository contains the full implementation of the **ToxCML / mfCoQ-RASAR** framework, a hybrid in silico toxicity prediction platform that integrates **consensus QSAR**, **similarity-based read-across**, and their **optimized coupling** across multiple toxicity endpoints.
 
