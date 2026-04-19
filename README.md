@@ -278,5 +278,6 @@ Git configuration for consistent line endings and handling of large or binary fi
 
 If you use this repository, the models, or any derived results in your work, please cite the corresponding ToxCML mfCoQ‑RASAR manuscript once published. Pending formal citation, you may reference it as:
 
-> Nursyafi FS, Pramudito MA, Fuadah YN, Izza RN, Fauzan AL, Lim KM.  
-> **ToxCML: A Hybrid mfCoQ‑RASAR-Based Platform Integrating Consensus QSAR and Read-Across for Comprehensive Multi-Endpoint Toxicity Assessment.** Manuscript in preparation.
+> ToxCML: A Hybrid mfCoQ-RASAR-Based Platform Integrating Consensus QSAR and Read-Across for Comprehensive Multi-End Point Toxicity Assessment
+Fauzan Syarif Nursyafi, Muhammad Adnan Pramudito, Yunendah Nur Fuadah, Rahmafatin Nurul Izza, Abdul Latif Fauzan, and Ki Moo Lim
+Journal of Chemical Information and Modeling, DOI: 10.1021/acs.jcim.6c00357
